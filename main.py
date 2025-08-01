@@ -4,8 +4,7 @@ from pydantic import BaseModel
 from datetime import datetime
 import sqlite3
 
-
-
+# Buat tabel GPS jika belum ada
 conn = sqlite3.connect("gps.db")
 c = conn.cursor()
 c.execute("""
@@ -20,21 +19,16 @@ CREATE TABLE IF NOT EXISTS gps (
 conn.commit()
 conn.close()
 
-
 app = FastAPI()
 
-
-
-
-# Serve frontend (index.html di /static)
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
+# Data model
 class GPSData(BaseModel):
     device_id: str
     lat: float
     lon: float
     timestamp: datetime = datetime.now()
 
+# POST endpoint
 @app.post("/api/gps")
 def receive_gps(data: GPSData):
     conn = sqlite3.connect("gps.db")
@@ -45,6 +39,7 @@ def receive_gps(data: GPSData):
     conn.close()
     return {"status": "ok"}
 
+# GET endpoint
 @app.get("/api/latest")
 def latest_positions():
     conn = sqlite3.connect("gps.db")
@@ -53,3 +48,6 @@ def latest_positions():
     rows = c.fetchall()
     conn.close()
     return {"data": rows}
+
+# Mount static files (paling bawah agar tidak override route API)
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
