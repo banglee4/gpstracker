@@ -4,7 +4,27 @@ from pydantic import BaseModel
 from datetime import datetime
 import sqlite3
 
+
+
+conn = sqlite3.connect("gps.db")
+c = conn.cursor()
+c.execute("""
+CREATE TABLE IF NOT EXISTS gps (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    device_id TEXT,
+    lat REAL,
+    lon REAL,
+    timestamp TEXT
+)
+""")
+conn.commit()
+conn.close()
+
+
 app = FastAPI()
+
+
+
 
 # Serve frontend (index.html di /static)
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
