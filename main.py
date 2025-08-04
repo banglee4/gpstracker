@@ -52,26 +52,3 @@ def latest_positions():
 # Mount static files (paling bawah agar tidak override route API)
 app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
-DB_PATH = Path("gps.db")
-def get_db_connection():
-    conn = sqlite3.connect(DB_PATH)
-    return conn
-
-# Endpoint untuk menampilkan form input
-@app.get("/manual", response_class=HTMLResponse)
-async def manual_form():
-    with open("static/input.html") as f:
-        return f.read()
-
-# Endpoint untuk menerima input manual
-@app.post("/manual_input")
-async def manual_input(device_id: str = Form(...), lat: float = Form(...), lon: float = Form(...)):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO gps (device_id, lat, lon) VALUES (?, ?, ?)",
-        (device_id, lat, lon)
-    )
-    conn.commit()
-    conn.close()
-    return RedirectResponse(url="/manual", status_code=303)
