@@ -51,9 +51,6 @@ def latest_positions():
     conn.close()
     return {"data": rows}
 
-# Mount static files (paling bawah agar tidak override route API)
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
-
 
 DB_PATH = Path("gps.db")
 
@@ -80,5 +77,12 @@ async def manual_input(
     conn.commit()
     conn.close()
     return RedirectResponse(url="/manual", status_code=303)
+
+
+
+
+
+# Mount static files (paling bawah agar tidak override route API)
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 
